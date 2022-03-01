@@ -1,100 +1,51 @@
-package pacemaker;
+package Pacemaker;
 
-public class pacemaker {
-	
-	// Variables - Pacemaker
-	
-	// Pacemaker type
-	private String pacemaker_Type;
-	
-	// Battery life and consumption
+import heart.heart;
 
-	private float battery_Life = 100;
-	private float battery_Consumption;
-	private float battery_Consumption_Rate;
-	private boolean battery_Optimization_Mode;
+public class Pacemaker {
+    private heart heart;
+	private boolean isPacing;
 
-	// Heart rate limits
-	private int lower_Heart_Limit = 120;
-	private int upper_Heart_Limit = 60;
-	
-	// Getters and Setters
-	
-	// Pacemaker type
-	public String getPacemaker_Type() {
-		return pacemaker_Type;
-	}
+    private int targetBpm;
+    private int targetDiff; //The delay between the atrium and ventricle pulsing
+    private int pulseDuration; // The time that each pulse lasts
 
-	public void setPacemaker_Type(String pacemaker_Type) {
-		// If dual chamber is required
-		if(pacemaker_Type == "AP + VP")
-		{
-		this.pacemaker_Type = "AP + VP";
-		}
-		// If single chamber is required
-		else
-		{
-		this.pacemaker_Type = "VP";
-		}
-	}
-	
-	// Battery life
-	public float getBattery_Life() {
-		return battery_Life;
-	}
+    private int paced; // 0 = none, 1 = A, 2 = V, 3 = DUAL
+    private int sensed; // 0 = none, 1 = A, 2 = V, 3 = DUAL
+    private int response; // 0 = none, 1 = Trigger, 2 = Inhibit, 3 = Dual
 
-	// Battery consumption
-	public float getBattery_Consumption() {
-		return battery_Consumption;
-	}
+    public Pacemaker(heart heart) {
+        this.heart = heart;
+    }
 
-	public void setBattery_Consumption(float battery_Consumption) {
-		this.battery_Consumption = battery_Consumption;
-	}
-	
-	// Battery consumption rate
-	public float getBattery_Consumption_Rate() {
-		return battery_Consumption_Rate;
-	}
+    private void pace(int toPace) throws InterruptedException {
+        if (toPace > 0) {
+            if (toPace == 1) {
+                this.heart.setIs_A_Pulsed(true);
+                Thread.sleep(pulseDuration);
+                this.heart.setIs_A_Pulsed(false);
+            } else if (toPace == 2) {
+                this.heart.setIs_V_Pulsed(true);
+                Thread.sleep(pulseDuration);
+                this.heart.setIs_V_Pulsed(false);
+            } else {
+                this.heart.setIs_A_Pulsed(true);
+                Thread.sleep(pulseDuration);
+                this.heart.setIs_A_Pulsed(false);
+                
+                Thread.sleep(targetDiff-pulseDuration);
+                
+                this.heart.setIs_V_Pulsed(true);
+                Thread.sleep(pulseDuration);
+                this.heart.setIs_V_Pulsed(false);
+            }
+        }
+    }
 
-	public void setBattery_Consumption_Rate(float battery_Consumption_Rate) {
-		this.battery_Consumption_Rate = battery_Consumption_Rate;
-	}
-	
-	// Battery optimization
-	public boolean getBattery_Optimizsation_Mode() {
-		return battery_Optimization_Mode;
-	}
-
-	public void setBattery_Optimization_Mode(boolean battery_Optimization_Mode) {
-		this.battery_Optimization_Mode = battery_Optimization_Mode;
-	}
-
-	// Heart rate - Upper and Lower limits
-	public int getLower_Heart_Limit() {
-		return lower_Heart_Limit;
-	}
-
-	public void setLower_Heart_Limit(int lower_Heart_Limit) {
-		this.lower_Heart_Limit = lower_Heart_Limit;
-	}
-
-	public int getUpper_Heart_Limit() {
-		return upper_Heart_Limit;
-	}
-
-	public void setUpper_Heart_Limit(int upper_Heart_Limit) {
-		this.upper_Heart_Limit = upper_Heart_Limit;
-	}	
-
-	// Constrcutor function
-	public pacemaker() {
-		
-		battery_Life = getBattery_Life();
-		battery_Consumption = getBattery_Consumption();
-		battery_Consumption_Rate = getBattery_Consumption_Rate();
-		battery_Optimization_Mode = getBattery_Optimizsation_Mode();
-		
-	}
-
+    public void runPacemaker(){
+        while (isPacing) {
+            
+            
+        }
+    }
 }
