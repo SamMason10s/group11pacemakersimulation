@@ -19,19 +19,29 @@ public class Pacemaker {
 
     public Pacemaker(heart heart) {
         this.heart = heart;
+        this.paced = 0;
+        this.sensed = 0;
+        this.response = 0;
     }
 
     private void pace(int toPace) throws InterruptedException {
         if (toPace > 0) {
+            // If pacing the atrium
             if (toPace == 1) {
                 this.heart.setIs_A_Pulsed(true);
                 Thread.sleep(pulseDuration);
                 this.heart.setIs_A_Pulsed(false);
-            } else if (toPace == 2) {
+            } 
+
+            // If pacing the ventricle
+            else if (toPace == 2) {
                 this.heart.setIs_V_Pulsed(true);
                 Thread.sleep(pulseDuration);
                 this.heart.setIs_V_Pulsed(false);
-            } else {
+            } 
+
+            // If pacing both chambers.
+            else {
                 this.heart.setIs_A_Pulsed(true);
                 Thread.sleep(pulseDuration);
                 this.heart.setIs_A_Pulsed(false);
@@ -46,19 +56,37 @@ public class Pacemaker {
     }
 
     public void runPacemaker() throws InterruptedException{
-        while (isPacing) {
-            if (sensed > 0) {
-                if (sensed == 1) {
-                    if (heart.isIs_A_Pulsed()) {
+        while (this.isPacing) {
+            int beatDelay = this.heart.getHeart_Rate();
+
+            if (this.sensed > 0) {
+                // If sensing the atrium.
+                if (this.sensed == 1) {
+                    if (this.heart.isIs_A_Pulsed() & this.response == 1) {
+                        Thread.sleep(this.targetDiff);
                         this.pace(this.paced);
                     }
-                } else if (sensed == 2) {
-                    if (heart.isIs_V_Pulsed()) {
+                } 
+
+                // If sensing the ventricle.
+                else if (this.sensed == 2) {
+                    if (this.heart.isIs_V_Pulsed() & this.response == 1) {
+                        Thread.sleep(beatDelay);
                         this.pace(this.paced);
                     }
-                } else {
-                    // 
                 }
+
+                // If sensing both chambers.
+                else {
+                    if (this.response == 1) {
+                        //  TODO
+                    }
+                }
+            } 
+            
+            // If not sensing, just pace the selected chamber(s).
+            else {
+                this.pace(this.paced);
             }
         }
     }
