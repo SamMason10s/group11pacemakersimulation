@@ -6,23 +6,20 @@ public class heart implements Runnable {
 	boolean start_Simulation = true;
 
 	// Variables - Heart
-	
 	// Status
 	private String heart_Status;
-	
 	// Heart rate
 	private int heart_Rate = 100;
-	
 	// AP and AV 
 	private int arterial_Pulse_Width;
 	private int ventricular_Pulse_Width;
 	private int chamber_Distance;
 	private int arterial_pulse_Amplitude;
 	private int ventricular_pulse_Amplitude;
-	
 	// is inhibited (Chamber)
-	
-	// Is pulsed
+	boolean is_V_Inhibited;
+	boolean is_A_Inhibited;
+	// Is pulsed (Chamber)
 	private boolean is_V_Pulsed;
 	private boolean is_A_Pulsed;
 	
@@ -107,6 +104,20 @@ public class heart implements Runnable {
 		this.is_A_Pulsed = is_A_Pulsed;
 	}
 	
+	// Is chamber inhibited by Pacemaker (Atrium and Ventricle)
+	public boolean isIs_V_Inhibited() {
+		return is_V_Inhibited;
+	}
+	public void setIs_V_Inhibited(boolean is_V_Inhibited) {
+		this.is_V_Inhibited = is_V_Inhibited;
+	}
+	public boolean isIs_A_Inhibited() {
+		return is_A_Inhibited;
+	}
+	public void setIs_A_Inhibited(boolean is_A_Inhibited) {
+		this.is_A_Inhibited = is_A_Inhibited;
+	}
+	
 	// Heart status
 	public String getHeart_Status() {
 		// If heart rate is greater than 0... We can assume that the patient is considered to be 'Alive'
@@ -155,24 +166,44 @@ public class heart implements Runnable {
 		
 	}
 	
-	// thread
-	
 	// Start simulation
 	 public void start_sim() throws InterruptedException 
 	 {	 
 		 	// While simulation is true
 			while(this.start_Simulation != false)
 				{
+				
+				// Calculate value difference
 				calculate_Chamber_Difference();
-					// print out heart details
-					//System.out.println(h.toString());
-					try {		
-						Thread.sleep(arterial_Pulse_Width);
-						is_A_Pulsed = true;
-						is_V_Pulsed = false;
-						Thread.sleep(chamber_Distance);						
-						is_V_Pulsed = true;
-						is_A_Pulsed = false;
+				
+				// Pacemaker mode
+				is_A_Inhibited = false;
+				is_V_Inhibited = false;
+				
+					try {
+						if (is_A_Inhibited == true) // If single chmaber Pacemaker is ran... Atrium is inhibited
+							{
+								Thread.sleep(arterial_Pulse_Width);
+								is_V_Pulsed = false;
+								Thread.sleep(chamber_Distance);						
+								is_V_Pulsed = true;
+							}
+						else if (is_V_Inhibited == true) // If single chmaber Pacemaker is ran... Ventricle is inhibited
+							{
+								Thread.sleep(arterial_Pulse_Width);
+								is_A_Pulsed = false;
+								Thread.sleep(chamber_Distance);						
+								is_A_Pulsed = true;
+							}
+						else // If dual chamber Pacemaker is ran... Both chambers run normally.
+							{
+								Thread.sleep(arterial_Pulse_Width);
+								is_A_Pulsed = true;
+								is_V_Pulsed = false;
+								Thread.sleep(chamber_Distance);						
+								is_V_Pulsed = true;
+								is_A_Pulsed = false;
+							}
 						} 
 					
 					catch (InterruptedException e) 
@@ -184,9 +215,9 @@ public class heart implements Runnable {
 	 };
 	 
 	// Stop simulation
-	public void stop_sim(heart h) 
+	public void stop_sim() 
 	 {
-		 h.start_Simulation = false;		
+		 this.start_Simulation = false;		
 	 }
 	 
 	@Override
