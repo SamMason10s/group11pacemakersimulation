@@ -5,6 +5,9 @@ import heart.heart;
 public class Pacemaker {
     private heart heart;
 	private boolean isPacing;
+    
+    private int batterySize;
+    private int batteryLoad;
 
     private int targetBpm;
     private int targetDiff; //The delay between the atrium and ventricle pulsing
@@ -42,10 +45,21 @@ public class Pacemaker {
         }
     }
 
-    public void runPacemaker(){
+    public void runPacemaker() throws InterruptedException{
         while (isPacing) {
-            
-            
+            if (sensed > 0) {
+                if (sensed == 1) {
+                    if (heart.isIs_A_Pulsed()) {
+                        this.pace(this.paced);
+                    }
+                } else if (sensed == 2) {
+                    if (heart.isIs_V_Pulsed()) {
+                        this.pace(this.paced);
+                    }
+                } else {
+                    // 
+                }
+            }
         }
     }
 }
