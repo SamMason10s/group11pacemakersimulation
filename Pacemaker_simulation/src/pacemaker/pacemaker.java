@@ -1,5 +1,6 @@
 package Pacemaker;
 
+import java.util.ArrayList;
 import heart.heart;
 
 public class Pacemaker {
@@ -8,6 +9,8 @@ public class Pacemaker {
     
     private int batterySize;
     private int batteryLoad;
+
+    // private ArrayList mechanisms;
 
     private int targetBpm;
     private int targetDiff; //The delay between the atrium and ventricle pulsing
@@ -23,6 +26,11 @@ public class Pacemaker {
         this.sensed = 0;
         this.response = 0;
     }
+
+    private int calcBeatDelay() {	
+		float delay = ((this.targetBpm/1000)*60);
+        return (int) delay;
+	}
 
     private void pace(int toPace) throws InterruptedException {
         if (toPace > 0) {
@@ -56,37 +64,151 @@ public class Pacemaker {
     }
 
     public void runPacemaker() throws InterruptedException{
+        int beatDelay = this.calcBeatDelay();
+        
         while (this.isPacing) {
-            int beatDelay = this.heart.getHeart_Rate();
+            boolean hasPaced = false;
 
             if (this.sensed > 0) {
-                // If sensing the atrium.
-                if (this.sensed == 1) {
-                    if (this.heart.isIs_A_Pulsed() & this.response == 1) {
+                // Pacing modes that sense the atrium
+                if (this.sensed == 1){
+                    // AAT/VAT/DAT pacing modes.
+                    if (this.response == 1 & (this.paced == 2 | this.paced == 3) & this.heart.isIs_A_Pulsed()) {
                         Thread.sleep(this.targetDiff);
-                        this.pace(this.paced);
+                        this.pace(2);
+                        hasPaced = true;
                     }
-                } 
 
-                // If sensing the ventricle.
-                else if (this.sensed == 2) {
-                    if (this.heart.isIs_V_Pulsed() & this.response == 1) {
+                    // AAI/VAI/DAI pacing modes.
+                    else if (this.response == 2 & (heart.getLastAtriumContraction() >= beatDelay) & !this.heart.isIs_A_Pulsed()) {
+                        this.pace(this.paced);
+                        hasPaced = true;
+                    }
+
+                    // AAD/VAD/DAD pacing modes.
+                    else if (this.response == 3) {
+                        if (this.heart.isIs_A_Pulsed() & (this.paced == 2 | this.paced == 3)) {
+                            Thread.sleep(this.targetDiff);
+                            this.pace(2);
+                            hasPaced = true;
+                        }
+                        else if (heart.getLastAtriumContraction() >= beatDelay & !this.heart.isIs_A_Pulsed()){
+                            this.pace(this.paced);
+                            hasPaced = true;
+                        }
+                    }
+
+                    // AAO/VAO/DAO pacing modes.
+                    else {
+                        this.pace(this.paced);
+                        hasPaced = true;
+                    }
+                }
+
+
+                // Pacing modes that sense the ventricle.
+                if (this.sensed == 2){
+                    // AVT/VVT/DVT pacing modes.
+                    if (this.response == 1 & (this.paced == 1 | this.paced == 3) & this.heart.isIs_V_Pulsed()) {
                         Thread.sleep(beatDelay);
+                        this.pace(1);
+                        // Has paced is not set, to avoid second beat delay
+                    }
+
+                    // AVI/VVI/DVI pacing modes.
+                    else if (this.response == 2 & (heart.getLastVentricleContraction() >= beatDelay) & !this.heart.isIs_V_Pulsed()) {
                         this.pace(this.paced);
+                        hasPaced = true;
+                    }
+
+                    // AVD/VVD/DVD pacing modes.
+                    else if (this.response == 3) {
+                        if (this.heart.isIs_V_Pulsed() & (this.paced == 1 | this.paced == 3)) {
+                            Thread.sleep(beatDelay);
+                            this.pace(1);
+                            // Has paced is not set to avoid double beat delay
+                        }
+                        else if (heart.getLastVentricleContraction() >= beatDelay & !this.heart.isIs_V_Pulsed()){
+                            this.pace(this.paced);
+                            hasPaced = true;
+                        }
+                    }
+
+                    // AVO/VVO/DVO pacing modes.
+                    else {
+                        this.pace(this.paced);
+                        hasPaced = true;
                     }
                 }
 
-                // If sensing both chambers.
-                else {
+                // Pacing modes that sense both chambers.
+                if (this.sensed == 2){
+                    // ADT/VVT/DDT pacing modes.
                     if (this.response == 1) {
-                        //  TODO
+                        if  ((this.paced == 2 | this.paced == 3) & this.heart.isIs_A_Pulsed()) {
+                            Thread.sleep(this.targetDiff);
+                            this.pace(2);
+                            hasPaced = true;
+                        }
+
+                        if ((this.paced == 1 | this.paced == 3) & this.heart.isIs_V_Pulsed()) {
+                            Thread.sleep(beatDelay);
+                            this.pace(1);
+                            // Has paced is not set, to avoid second beat delay
+                        }
+                    }
+
+                    // ADI/VDI/DDI pacing modes.
+                    else if (this.response == 2) {
+                        if (heart.getLastAtriumContraction() >= beatDelay & !this.heart.isIs_A_Pulsed()) {
+                            this.pace(this.paced);
+                            hasPaced = true;
+                        }
+
+                        else if ((heart.getLastVentricleContraction() >= beatDelay) & !this.heart.isIs_V_Pulsed()) {
+                            this.pace(this.paced);
+                            hasPaced = true;
+                        }
+                    }
+
+                    // ADD/VDD/DDD pacing modes.
+                    else if (this.response == 3) {
+                        if (this.heart.isIs_A_Pulsed() & (this.paced == 2 | this.paced == 3)) {
+                            Thread.sleep(this.targetDiff);
+                            this.pace(2);
+                            hasPaced = true;
+                        }
+                        else if (heart.getLastAtriumContraction() >= beatDelay & !this.heart.isIs_A_Pulsed()){
+                            this.pace(this.paced);
+                            hasPaced = true;
+                        }
+                        else if (this.heart.isIs_V_Pulsed() & (this.paced == 1 | this.paced == 3)) {
+                            Thread.sleep(beatDelay);
+                            this.pace(1);
+                            // Has paced is not set to avoid double beat delay
+                        }
+                        else if (heart.getLastVentricleContraction() >= beatDelay & !this.heart.isIs_V_Pulsed()){
+                            this.pace(this.paced);
+                            hasPaced = true;
+                        }
+                    }
+
+                    // ADO/VDO/DDO pacing modes.
+                    else {
+                        this.pace(this.paced);
+                        hasPaced = true;
                     }
                 }
-            } 
-            
-            // If not sensing, just pace the selected chamber(s).
+            }
+
+            // Asynchronous Pacing
             else {
                 this.pace(this.paced);
+                hasPaced = true;
+            }
+
+            if (hasPaced) {
+                Thread.sleep(beatDelay);
             }
         }
     }
