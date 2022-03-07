@@ -8,23 +8,27 @@ public class Pacemaker {
     private heart heart;
 	private boolean isPacing;
     
+    // Battery and memory information.
     private int batteryCapacity;
     private float batteryLoad;
     private float batteryVoltage;
-
     private float memoryCapacity;
     private float memoryUsage;
 
+    // Memory usage.
     private ArrayList<Mechanism> mechanisms;
 
+    // Pacemaker settings.
     private int targetBpm;
     private int targetDiff; //The delay between the atrium and ventricle pulsing
     private int pulseDuration; // The time that each pulse lasts
 
+    // Pacing settings.
     private int paced; // 0 = none, 1 = A, 2 = V, 3 = DUAL
     private int sensed; // 0 = none, 1 = A, 2 = V, 3 = DUAL
     private int response; // 0 = none, 1 = Trigger, 2 = Inhibit, 3 = Dual
 
+    // Constructor
     public Pacemaker(heart heart) {
         this.heart = heart;
         this.paced = 0;
@@ -33,19 +37,33 @@ public class Pacemaker {
         this.mechanisms = new ArrayList<>();
     }
 
-    public void addMechanism(String name, String description, float load, int memory) {
-        Mechanism mechanism = new Mechanism(name, description, load, memory);
-        this.mechanisms.add(mechanism);
+    // Add a mechanism to the list.
+    public boolean addMechanism(String name, String description, float load, int memory) {
+        float remainingMemory = this.memoryCapacity - calcMemoryUsage();
+
+        // If there is sufficient memory space, add the mechanism
+        if (remainingMemory >= load) {
+            Mechanism mechanism = new Mechanism(name, description, load, memory);
+            this.mechanisms.add(mechanism);
+            return true;
+        } 
+        // Otherwise don't add the mechanism.
+        else {
+            return false;
+        }
     }
 
+    // Remove a mechanism from the list.
     public void removeMechanism(int index) {
         this.mechanisms.remove(index);
     }
 
+    // Get a list of the mechanisms.
     public ArrayList<Mechanism> getMechanisms(){
         return this.mechanisms;
     }
 
+    // Calculate the battery life of the pacemaker, accounting for all of the mechanisms.
     public float calcBatteryLife() {
         float totalLoad = 0;
         
@@ -59,6 +77,7 @@ public class Pacemaker {
         return batteryLife;
     }
 
+    // Calculate the total memory usage, accounting for all of the mechanisms.
     public float calcMemoryUsage() {
         float totalMemory = 0;
         
@@ -69,11 +88,13 @@ public class Pacemaker {
         return totalMemory + this.memoryUsage;
     }
 
+    // Calculate the time period between each heart beat in milliseconds.
     private int calcBeatDelay() {	
 		float delay = ((this.targetBpm/1000)*60);
         return (int) delay;
 	}
 
+    // Pace the various chambers.
     private void pace(int toPace) throws InterruptedException {
         if (toPace > 0) {
             // If pacing the atrium
@@ -105,11 +126,13 @@ public class Pacemaker {
         }
     }
 
+    // Run the pacemaker.
     public void runPacemaker() throws InterruptedException{
-        int beatDelay = this.calcBeatDelay();
+        this.isPacing = true;
         
         while (this.isPacing) {
             boolean hasPaced = false;
+            int beatDelay = this.calcBeatDelay();
 
             if (this.sensed > 0) {
                 // Pacing modes that sense the atrium
@@ -249,6 +272,7 @@ public class Pacemaker {
                 hasPaced = true;
             }
 
+            // If the pacemaker has paced the heart, wait until the next beat is supposed to happen.
             if (hasPaced) {
                 Thread.sleep(beatDelay);
             }
