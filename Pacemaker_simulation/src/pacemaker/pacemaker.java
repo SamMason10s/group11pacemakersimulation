@@ -12,7 +12,10 @@ public class Pacemaker {
     private float batteryLoad;
     private float batteryVoltage;
 
-    // private ArrayList mechanisms;
+    private float memoryCapacity;
+    private float memoryUsage;
+
+    private ArrayList<Mechanism> mechanisms;
 
     private int targetBpm;
     private int targetDiff; //The delay between the atrium and ventricle pulsing
@@ -27,16 +30,43 @@ public class Pacemaker {
         this.paced = 0;
         this.sensed = 0;
         this.response = 0;
+        this.mechanisms = new ArrayList<>();
     }
 
-    private float calcBatteryLife() {
+    public void addMechanism(String name, String description, float load, int memory) {
+        Mechanism mechanism = new Mechanism(name, description, load, memory);
+        this.mechanisms.add(mechanism);
+    }
+
+    public void removeMechanism(int index) {
+        this.mechanisms.remove(index);
+    }
+
+    public ArrayList<Mechanism> getMechanisms(){
+        return this.mechanisms;
+    }
+
+    public float calcBatteryLife() {
         float totalLoad = 0;
-        // TODO: Calculate total load of mechanisms 
+        
+        for (Mechanism m : this.mechanisms) {
+            totalLoad += m.getLoad();
+        }
 
         float loadCurrent = (totalLoad + this.batteryLoad)/this.batteryVoltage;
         float batteryLife = this.batteryCapacity/loadCurrent;
 
         return batteryLife;
+    }
+
+    public float calcMemoryUsage() {
+        float totalMemory = 0;
+        
+        for (Mechanism m : this.mechanisms) {
+            totalMemory += m.getLoad();
+        }
+
+        return totalMemory + this.memoryUsage;
     }
 
     private int calcBeatDelay() {	
