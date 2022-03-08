@@ -29,7 +29,7 @@ public class heart {
 
             JPanel jp = new JPanel(null);
             jp.setPreferredSize(new Dimension(220, 250));
-            jp.setBorder(new TitledBorder(new EtchedBorder(), "heart"));
+            jp.setBorder(new TitledBorder(new EtchedBorder(), "Heart"));
 
 
             JLabel JL1 = new JLabel("User Name");
@@ -312,7 +312,7 @@ public class heart {
              * A judgment condition needs to be set. If the listener event is triggered, it will turn blue.
              * 
              */
-            heartAtriumButton  = new JButton("  Atrium");
+            heartAtriumButton  = new JButton(" Atrium");
             heartAtriumButton.setFont(new Font("微软雅黑",Font.BOLD,16));
             heartAtriumButton.setPreferredSize(new Dimension(20,20));
             heartAtriumButton.setBounds(90, 200, 140, 50);
@@ -333,7 +333,7 @@ public class heart {
              * A judgment condition needs to be set. If the listener event is triggered, it will turn red.
              * 
              */
-            heartVentricleButton  = new JButton(" Ventricle");
+            heartVentricleButton  = new JButton("Ventricle");
             heartVentricleButton.setFont(new Font("微软雅黑",Font.BOLD,16));
             heartVentricleButton.setPreferredSize(new Dimension(145,50));
             heartVentricleButton.setBounds(250, 200, 145, 50);
@@ -349,7 +349,7 @@ public class heart {
             pacemakerStartButton = new JButton("Start Pacemaker");
             pacemakerStartButton.setFont(new Font("微软雅黑", Font.BOLD, 16));
             //pacemakerStartButton.setPreferredSize(new Dimension(180,40));
-            pacemakerStartButton.setBounds(20, 87, 170, 40);
+            pacemakerStartButton.setBounds(15, 87, 170, 40);
             pacemakerStartButton.setEnabled(true);
             
             //Determine that all four values of pacemaker have been entered
