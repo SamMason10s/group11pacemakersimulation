@@ -213,10 +213,10 @@ public class heart {
             pacemakerPanel.setBorder(BorderFactory.createTitledBorder(new EtchedBorder(),"Pacemaker"));
             //Atrial Panel
             atrialPanel = new JPanel(new GridLayout(2, 2,10,10));
-            atrialPanel.setBorder(BorderFactory.createTitledBorder("Atrial"));
+            atrialPanel.setBorder(BorderFactory.createTitledBorder(new EtchedBorder(),"Atrial"));
             //Ventricular Panel
             ventricularPanel = new JPanel(new GridLayout(2,2,10,10));
-            ventricularPanel.setBorder(BorderFactory.createTitledBorder("Ventricular"));
+            ventricularPanel.setBorder(BorderFactory.createTitledBorder(new EtchedBorder(),"Ventricular"));
             //StartBattery Panel
             startBatteryPanel = new JPanel(null);
             startBatteryPanel.setPreferredSize(new Dimension(200, 150));
