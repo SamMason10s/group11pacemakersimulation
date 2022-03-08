@@ -1,11 +1,11 @@
 package Pacemaker;
-
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import heart.heart;
+import Heart.Heart;
 
-public class Pacemaker {
-    private heart heart;
+public class Pacemaker implements Serializable  {
+	private Heart Heart;
 	private boolean isPacing;
     
     // Battery and memory information.
@@ -29,8 +29,8 @@ public class Pacemaker {
     private int response; // 0 = none, 1 = Trigger, 2 = Inhibit, 3 = Dual
 
     // Constructor
-    public Pacemaker(heart heart) {
-        this.heart = heart;
+    public Pacemaker(Heart Heart) {
+        this.Heart = Heart;
         this.paced = 0;
         this.sensed = 0;
         this.response = 0;
@@ -88,7 +88,7 @@ public class Pacemaker {
         return totalMemory + this.memoryUsage;
     }
 
-    // Calculate the time period between each heart beat in milliseconds.
+    // Calculate the time period between each Heart beat in milliseconds.
     private int calcBeatDelay() {	
 		float delay = ((this.targetBpm/1000)*60);
         return (int) delay;
@@ -99,29 +99,29 @@ public class Pacemaker {
         if (toPace > 0) {
             // If pacing the atrium
             if (toPace == 1) {
-                this.heart.setIs_A_Pulsed(true);
+                this.Heart.setIs_A_Pulsed(true);
                 Thread.sleep(pulseDuration);
-                this.heart.setIs_A_Pulsed(false);
+                this.Heart.setIs_A_Pulsed(false);
             } 
 
             // If pacing the ventricle
             else if (toPace == 2) {
-                this.heart.setIs_V_Pulsed(true);
+                this.Heart.setIs_V_Pulsed(true);
                 Thread.sleep(pulseDuration);
-                this.heart.setIs_V_Pulsed(false);
+                this.Heart.setIs_V_Pulsed(false);
             } 
 
             // If pacing both chambers.
             else {
-                this.heart.setIs_A_Pulsed(true);
+                this.Heart.setIs_A_Pulsed(true);
                 Thread.sleep(pulseDuration);
-                this.heart.setIs_A_Pulsed(false);
+                this.Heart.setIs_A_Pulsed(false);
                 
                 Thread.sleep(targetDiff-pulseDuration);
                 
-                this.heart.setIs_V_Pulsed(true);
+                this.Heart.setIs_V_Pulsed(true);
                 Thread.sleep(pulseDuration);
-                this.heart.setIs_V_Pulsed(false);
+                this.Heart.setIs_V_Pulsed(false);
             }
         }
     }
@@ -138,26 +138,26 @@ public class Pacemaker {
                 // Pacing modes that sense the atrium
                 if (this.sensed == 1){
                     // AAT/VAT/DAT pacing modes.
-                    if (this.response == 1 & (this.paced == 2 | this.paced == 3) & this.heart.isIs_A_Pulsed()) {
+                    if (this.response == 1 & (this.paced == 2 | this.paced == 3) & this.Heart.isIs_A_Pulsed()) {
                         Thread.sleep(this.targetDiff);
                         this.pace(2);
                         hasPaced = true;
                     }
 
                     // AAI/VAI/DAI pacing modes.
-                    else if (this.response == 2 & ((Instant.now().toEpochMilli() - heart.getLastAtriumContraction()) >= beatDelay) & !this.heart.isIs_A_Pulsed()) {
+                    else if (this.response == 2 & ((Instant.now().toEpochMilli() - Heart.getLastAtriumContraction()) >= beatDelay) & !this.Heart.isIs_A_Pulsed()) {
                         this.pace(this.paced);
                         hasPaced = true;
                     }
 
                     // AAD/VAD/DAD pacing modes.
                     else if (this.response == 3) {
-                        if (this.heart.isIs_A_Pulsed() & (this.paced == 2 | this.paced == 3)) {
+                        if (this.Heart.isIs_A_Pulsed() & (this.paced == 2 | this.paced == 3)) {
                             Thread.sleep(this.targetDiff);
                             this.pace(2);
                             hasPaced = true;
                         }
-                        else if ((Instant.now().toEpochMilli() - heart.getLastAtriumContraction()) >= beatDelay & !this.heart.isIs_A_Pulsed()){
+                        else if ((Instant.now().toEpochMilli() - Heart.getLastAtriumContraction()) >= beatDelay & !this.Heart.isIs_A_Pulsed()){
                             this.pace(this.paced);
                             hasPaced = true;
                         }
@@ -174,26 +174,26 @@ public class Pacemaker {
                 // Pacing modes that sense the ventricle.
                 if (this.sensed == 2){
                     // AVT/VVT/DVT pacing modes.
-                    if (this.response == 1 & (this.paced == 1 | this.paced == 3) & this.heart.isIs_V_Pulsed()) {
+                    if (this.response == 1 & (this.paced == 1 | this.paced == 3) & this.Heart.isIs_V_Pulsed()) {
                         Thread.sleep(beatDelay);
                         this.pace(1);
                         // Has paced is not set, to avoid second beat delay
                     }
 
                     // AVI/VVI/DVI pacing modes.
-                    else if (this.response == 2 & ((Instant.now().toEpochMilli() - heart.getLastVentricleContraction()) >= beatDelay) & !this.heart.isIs_V_Pulsed()) {
+                    else if (this.response == 2 & ((Instant.now().toEpochMilli() - Heart.getLastVentricleContraction()) >= beatDelay) & !this.Heart.isIs_V_Pulsed()) {
                         this.pace(this.paced);
                         hasPaced = true;
                     }
 
                     // AVD/VVD/DVD pacing modes.
                     else if (this.response == 3) {
-                        if (this.heart.isIs_V_Pulsed() & (this.paced == 1 | this.paced == 3)) {
+                        if (this.Heart.isIs_V_Pulsed() & (this.paced == 1 | this.paced == 3)) {
                             Thread.sleep(beatDelay);
                             this.pace(1);
                             // Has paced is not set to avoid double beat delay
                         }
-                        else if ((Instant.now().toEpochMilli() - heart.getLastVentricleContraction()) >= beatDelay & !this.heart.isIs_V_Pulsed()){
+                        else if ((Instant.now().toEpochMilli() - Heart.getLastVentricleContraction()) >= beatDelay & !this.Heart.isIs_V_Pulsed()){
                             this.pace(this.paced);
                             hasPaced = true;
                         }
@@ -210,13 +210,13 @@ public class Pacemaker {
                 if (this.sensed == 2){
                     // ADT/VVT/DDT pacing modes.
                     if (this.response == 1) {
-                        if  ((this.paced == 2 | this.paced == 3) & this.heart.isIs_A_Pulsed()) {
+                        if  ((this.paced == 2 | this.paced == 3) & this.Heart.isIs_A_Pulsed()) {
                             Thread.sleep(this.targetDiff);
                             this.pace(2);
                             hasPaced = true;
                         }
 
-                        if ((this.paced == 1 | this.paced == 3) & this.heart.isIs_V_Pulsed()) {
+                        if ((this.paced == 1 | this.paced == 3) & this.Heart.isIs_V_Pulsed()) {
                             Thread.sleep(beatDelay);
                             this.pace(1);
                             // Has paced is not set, to avoid second beat delay
@@ -225,12 +225,12 @@ public class Pacemaker {
 
                     // ADI/VDI/DDI pacing modes.
                     else if (this.response == 2) {
-                        if ((Instant.now().toEpochMilli() - heart.getLastAtriumContraction()) >= beatDelay & !this.heart.isIs_A_Pulsed()) {
+                        if ((Instant.now().toEpochMilli() - Heart.getLastAtriumContraction()) >= beatDelay & !this.Heart.isIs_A_Pulsed()) {
                             this.pace(this.paced);
                             hasPaced = true;
                         }
 
-                        else if (((Instant.now().toEpochMilli() - heart.getLastVentricleContraction()) >= beatDelay) & !this.heart.isIs_V_Pulsed()) {
+                        else if (((Instant.now().toEpochMilli() - Heart.getLastVentricleContraction()) >= beatDelay) & !this.Heart.isIs_V_Pulsed()) {
                             this.pace(this.paced);
                             hasPaced = true;
                         }
@@ -238,21 +238,21 @@ public class Pacemaker {
 
                     // ADD/VDD/DDD pacing modes.
                     else if (this.response == 3) {
-                        if (this.heart.isIs_A_Pulsed() & (this.paced == 2 | this.paced == 3)) {
+                        if (this.Heart.isIs_A_Pulsed() & (this.paced == 2 | this.paced == 3)) {
                             Thread.sleep(this.targetDiff);
                             this.pace(2);
                             hasPaced = true;
                         }
-                        else if ((Instant.now().toEpochMilli() - heart.getLastAtriumContraction()) >= beatDelay & !this.heart.isIs_A_Pulsed()){
+                        else if ((Instant.now().toEpochMilli() - Heart.getLastAtriumContraction()) >= beatDelay & !this.Heart.isIs_A_Pulsed()){
                             this.pace(this.paced);
                             hasPaced = true;
                         }
-                        else if (this.heart.isIs_V_Pulsed() & (this.paced == 1 | this.paced == 3)) {
+                        else if (this.Heart.isIs_V_Pulsed() & (this.paced == 1 | this.paced == 3)) {
                             Thread.sleep(beatDelay);
                             this.pace(1);
                             // Has paced is not set to avoid double beat delay
                         }
-                        else if ((Instant.now().toEpochMilli() - heart.getLastVentricleContraction()) >= beatDelay & !this.heart.isIs_V_Pulsed()){
+                        else if ((Instant.now().toEpochMilli() - Heart.getLastVentricleContraction()) >= beatDelay & !this.Heart.isIs_V_Pulsed()){
                             this.pace(this.paced);
                             hasPaced = true;
                         }
@@ -272,7 +272,7 @@ public class Pacemaker {
                 hasPaced = true;
             }
 
-            // If the pacemaker has paced the heart, wait until the next beat is supposed to happen.
+            // If the pacemaker has paced the Heart, wait until the next beat is supposed to happen.
             if (hasPaced) {
                 Thread.sleep(beatDelay);
             }

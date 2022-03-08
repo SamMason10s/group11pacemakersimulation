@@ -1,26 +1,30 @@
-package heart;
-
+package Heart;
+import java.io.Serializable;
 import java.time.Instant;
 
-public class heart implements Runnable {
+public class Heart implements Runnable, Serializable {
 
 	// Variable - Simulation
-	boolean start_Simulation = true;
+	// Start
+	boolean start_Simulation = false;
 
 	// Variables - Heart
-
 	// Status
 	private String heart_Status;
 
 	// Heart rate
 	private int heart_Rate = 100;
+	private int heart_Distance;
 
 	// AP and AV
+	// Width
 	private int arterial_Pulse_Width;
 	private int ventricular_Pulse_Width;
+	// Distance
 	private int chamber_Distance;
-	private int arterial_pulse_Amplitude;
-	private int ventricular_pulse_Amplitude;
+	// Contraction duration
+	private int chamber_Contraction_Duration;
+
 
 	// Is pulsed
 	private boolean is_V_Pulsed;
@@ -29,18 +33,19 @@ public class heart implements Runnable {
 	private long lastVentricleContraction;
 
 	// Getters and Setters
-
+	
+	// Last Atrial and Ventricular contractions
 	
 	public void setLastVentricleContraction(){
+		Instant.now().toEpochMilli();
+	}
+	
+	public void setLastAtriumContraction(){
 		Instant.now().toEpochMilli();
 	}
 
 	public long getLastVentricleContraction(){
 		return lastVentricleContraction;
-	}
-
-	public void setLastAtriumContraction(){
-		Instant.now().toEpochMilli();
 	}
 
 	public long getLastAtriumContraction(){
@@ -53,7 +58,14 @@ public class heart implements Runnable {
 	}
 
 	public void setArterial_Pulse_Width(int arterial_Pulse_Width) {
-		this.arterial_Pulse_Width = arterial_Pulse_Width;
+		// Width is limited to 450 Ms... To replicate regular heart function
+		if (arterial_Pulse_Width > 450) {
+			// If value is greater than 450 Ms... Simply set value to 450 Ms
+			this.arterial_Pulse_Width = 450;
+		} else {
+			// Else stick with user input
+			this.arterial_Pulse_Width = arterial_Pulse_Width;
+		}	
 	}
 
 	public int getVentricular_Pulse_Width() {
@@ -61,38 +73,23 @@ public class heart implements Runnable {
 	}
 
 	public void setVentricular_Pulse_Width(int ventricular_Pulse_Width) {
-		this.ventricular_Pulse_Width = ventricular_Pulse_Width;
-	}
-
-	// Artrial and Ventricular pulse amplitude
-	public int getArterial_pulse_Amplitude() {
-		return arterial_pulse_Amplitude;
-	}
-
-	public void setArterial_pulse_Amplitude(int arterial_pulse_Amplitude) {
-		// Amplitude is limited to 4000 Mv... To replicate regular heart function
-		if (arterial_pulse_Amplitude > 4000) {
-			// If value is greater than 4000 Mv... Simply set value to 4000 Mv
-			this.arterial_pulse_Amplitude = 4000;
+		// Width is limited to 450 Ms... To replicate regular heart function
+		if (ventricular_Pulse_Width > 450) {
+			// If value is greater than 450 Ms... Simply set value to 450 Ms
+			this.ventricular_Pulse_Width = 450;
 		} else {
 			// Else stick with user input
-			this.arterial_pulse_Amplitude = arterial_pulse_Amplitude;
+			this.ventricular_Pulse_Width = ventricular_Pulse_Width;
 		}
 	}
 
-	public int getVentricular_pulse_Amplitude() {
-		return ventricular_pulse_Amplitude;
+	// Artrial and Ventricular pulse contraction duration
+	public int getChamber_Contraction_Duration() {
+		return chamber_Contraction_Duration;
 	}
 
-	public void setVentricular_pulse_Amplitude(int ventricular_pulse_Amplitude) {
-		// Amplitude is limited to 4000 Mv... To replicate regular heart function
-		if (ventricular_pulse_Amplitude > 4000) {
-			// If value is greater than 4000 Mv... Simply set value to 4000 Mv
-			this.ventricular_pulse_Amplitude = 4000;
-		} else {
-			// Else stick with user input
-			this.ventricular_pulse_Amplitude = ventricular_pulse_Amplitude;
-		}
+	public void setChamber_Contraction_Duration(int chamber_Contraction_Duration) {
+		this.chamber_Contraction_Duration = chamber_Contraction_Duration;
 	}
 
 	// Heart rate
@@ -103,12 +100,10 @@ public class heart implements Runnable {
 	// calculating heart rate
 	public void calculateHeart_Rate() {
 		// Calculate the heart rate... Taking into consideration both Nodes
-		float Rate = (((arterial_Pulse_Width + ventricular_Pulse_Width) / 1000) * 60);
+		float Rate = (((heart_Rate) / 1000) * 60);
 
-		// Divide by 2... To calculate heart rate
-		Rate = Rate / 2;
-
-		heart_Rate = (int) Rate;
+		// This heart rate == Rate
+		this.heart_Distance = (int) Rate;
 	}
 
 	// Is pulsed (Atrium and Ventricle)
@@ -148,54 +143,60 @@ public class heart implements Runnable {
 	}
 
 	// Constrcutor function
-	public heart() {
-		// Requires variables to be declared based upon user input
-		arterial_Pulse_Width = getArterial_Pulse_Width();
-		ventricular_Pulse_Width = getVentricular_Pulse_Width();
-		arterial_pulse_Amplitude = getArterial_pulse_Amplitude();
-		ventricular_pulse_Amplitude = getVentricular_pulse_Amplitude();
+	public Heart() {
+		// All values intially = 0 and null
+		arterial_Pulse_Width = 0;
+		ventricular_Pulse_Width = 0;
+		chamber_Contraction_Duration = 0;
 		heart_Rate = getHeart_Rate();
 		heart_Status = getHeart_Status();
 	}
 
 	// toString function
 	public String toString() {
-		return ("Current vitals: " + "\n" +
-				"--------------------" + "\n" +
+		// Return a full list of heart details
+		return ("\n" +
+				"Current vitals: " + "\n" +
+				"-------------------------" + "\n" +
 				"AP Width: " + arterial_Pulse_Width + "\n" +
 				"VP Width: " + ventricular_Pulse_Width + "\n" +
-				"AP Amplitude: " + arterial_pulse_Amplitude + "\n" +
-				"VP Amplitude: " + ventricular_pulse_Amplitude + "\n" +
+				"Chamber contraction duration: " + chamber_Contraction_Duration + "\n" +
 				"Heart rate: " + heart_Rate + " (BPM)" + "\n" +
-				"Status: " + heart_Status + " Atrium is pulsed: " + is_A_Pulsed + " Ventrical is pulsed: "
-				+ is_V_Pulsed);
-
+				"Status: " + heart_Status + "\n" +
+				"Atrium is pulsed: " + is_A_Pulsed + "\n" +
+				"Ventrical is pulsed: " + is_V_Pulsed);
 	}
-
+	
 	// thread
-
 	// Start simulation
 	public void start_sim() throws InterruptedException {
+		
+		// Start simulation
+		start_Simulation = true;
+		
 		// While simulation is true
 		while (this.start_Simulation != false) {
 			calculate_Chamber_Difference();
-			try {
+			try {		
 				// Contract atrium
-				Thread.sleep(arterial_Pulse_Width);
 				this.is_A_Pulsed = true;
-				Thread.sleep(arterial_pulse_Amplitude);
+				Thread.sleep(chamber_Contraction_Duration);
 				this.is_A_Pulsed = false;
 				this.setLastAtriumContraction();
 
+				// simulation sleeps for the distance between both chambers
 				Thread.sleep(chamber_Distance);
 
-				// Contract Ventricle
+				// Contract Ventricle	
 				this.is_V_Pulsed = true;
-				Thread.sleep(arterial_pulse_Amplitude);
+				Thread.sleep(chamber_Contraction_Duration);
 				this.is_V_Pulsed = false;
 				this.setLastVentricleContraction();
+				
+				Thread.sleep(heart_Distance);
 			}
 
+			// catch exceptions
 			catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -203,7 +204,7 @@ public class heart implements Runnable {
 	};
 
 	// Stop simulation
-	public void stop_sim(heart h) {
+	public void stop_sim(Heart h) {
 		h.start_Simulation = false;
 	}
 

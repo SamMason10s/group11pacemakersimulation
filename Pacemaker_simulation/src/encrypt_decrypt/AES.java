@@ -1,10 +1,5 @@
 package encrypt_decrypt;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -13,7 +8,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -24,11 +18,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import heart.Heart;
-
 public class AES {
 
-  private static SecretKeySpec secretKey;
+  private SecretKeySpec secretKey;
   private static byte[] key;
 
   public void setKey(final String myKey) {
@@ -38,7 +30,7 @@ public class AES {
       sha = MessageDigest.getInstance("SHA-1");
       key = sha.digest(key);
       key = Arrays.copyOf(key, 16);
-      secretKey = new SecretKeySpec(key, "AES");
+      this.secretKey = new SecretKeySpec(key, "AES");
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
       e.printStackTrace();
     }

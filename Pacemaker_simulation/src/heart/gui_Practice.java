@@ -1,15 +1,14 @@
-package heart;
+package Heart;
 
 public class gui_Practice {
 
 	public static void main(String[] args) throws InterruptedException {
 		// TODO Auto-generated constructor stub
 		
-		 heart heart1 = new heart();
+		 Heart heart1 = new Heart();
 		 heart1.setArterial_Pulse_Width(3000);
 		 heart1.setVentricular_Pulse_Width(4000);
-		 heart1.setArterial_pulse_Amplitude(38000);
-		 heart1.setArterial_pulse_Amplitude(38000);
+		 heart1.setChamber_Contraction_Duration(38000);
 		// ------------------------------------	
 		 
 		 new Thread(() -> {

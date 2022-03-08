@@ -1,7 +1,5 @@
 package gui;
 
-
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -227,7 +225,7 @@ public class heart {
             /*Labels*/
             //Heart figure display label
             heartFigure = new JLabel();
-            ImageIcon heartImg=new ImageIcon("img/CartoonHeart.png");//The image can change to the real heart version which in the same folder
+            ImageIcon heartImg=new ImageIcon("Pacemaker_simulation\\img\\CartoonHeart.png");//The image can change to the real heart version which in the same folder
             heartImg.setImage(heartImg.getImage().getScaledInstance(150, 150,Image.SCALE_DEFAULT )); //Scale the image to the required size
             heartFigure.setIcon(heartImg);
             heartFigure.setBounds(150, 30, 150, 150);
